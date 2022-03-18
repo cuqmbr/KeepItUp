@@ -12,7 +12,6 @@ public class PlayerInput : MonoBehaviour
         if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
         {
             _playerController.OnTouch(_camera.ScreenToWorldPoint(Mouse.current.position.ReadValue()));
-            PlayerEvents.SendScreenTouched();
             return;
         }
 
@@ -20,7 +19,6 @@ public class PlayerInput : MonoBehaviour
         if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame)
         {
             _playerController.OnTouch(_camera.ScreenToWorldPoint(Touchscreen.current.touches[0].position.ReadValue()));
-            PlayerEvents.SendScreenTouched();
             return;
         }
     }

@@ -45,6 +45,8 @@ public class PlayerController : MonoBehaviour
         _rigidbody.AddForce(_punchForce *  new Vector2(bounceDir.x * _sideForceMultiplier,  _upForceMultiplier), ForceMode2D.Impulse);
         //Add angular velocity for the visual effect
         _rigidbody.angularVelocity +=  bounceDir.x * -360f;
+        
+        PlayerEvents.SendBallTouched();
     }
 
     private void Update()

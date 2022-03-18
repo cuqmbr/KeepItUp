@@ -21,8 +21,8 @@ public class ScoreManager : MonoBehaviour
     {
         // Get _bestAllTimeScore if available or set it to 0
 
-        PlayerEvents.OnScreenTouched += AddScore;
-        PlayerEvents.OnScreenTouched += AddExperience;
+        PlayerEvents.OnBallTouched += AddScore;
+        PlayerEvents.OnBallTouched += AddExperience;
         PlayerEvents.OnWallTouched += ResetMultiplierAndReward;
     }
 
@@ -64,8 +64,8 @@ public class ScoreManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        PlayerEvents.OnScreenTouched -= AddScore;
-        PlayerEvents.OnScreenTouched -= AddExperience;
+        PlayerEvents.OnBallTouched -= AddScore;
+        PlayerEvents.OnBallTouched -= AddExperience;
         PlayerEvents.OnWallTouched -= ResetMultiplierAndReward;
     }
 }
