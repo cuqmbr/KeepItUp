@@ -21,8 +21,8 @@ public class ScoreManager : MonoBehaviour
     {
         // Get _bestAllTimeScore if available or set it to 0
 
-        PlayerEvents.OnBallTouched += AddScore;
         PlayerEvents.OnBallTouched += AddExperience;
+        PlayerEvents.OnBallTouched += AddScore;
         PlayerEvents.OnWallTouched += ResetMultiplierAndReward;
     }
 
@@ -36,7 +36,7 @@ public class ScoreManager : MonoBehaviour
     {
         if (_currentRewardMultiplier >= _maxMultiplier) return;
         _currentExperience++;
-        
+
         if (_currentExperience != _currentMaxExperience) return;
         IncreaseMultiplier();
     }
@@ -44,9 +44,9 @@ public class ScoreManager : MonoBehaviour
     private void IncreaseMultiplier()
     {
         _currentExperience = 0;
-        _currentRewardMultiplier++;
+        _currentRewardMultiplier *= 2;
         _currentMaxExperience = (int) Math.Ceiling(_currentMaxExperience * 1.5f);
-        _currentReward = (int)Mathf.Pow(2, _currentRewardMultiplier - 1);
+        _currentReward = _initialReward * _currentRewardMultiplier;
         Debug.Log($"Multiplier Up!");
     }
 
