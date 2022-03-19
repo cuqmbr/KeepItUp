@@ -15,6 +15,10 @@ public class PlayerController : MonoBehaviour
     private float _initialPositionY;
     private float _initialGravityScale;
 
+    [Header("Start position randomization")]
+    [SerializeField] private Vector2 _startPosition;
+    [Range(0f, 0.5f)] [SerializeField] private float _horisontalRadius;
+    
     [Header("Miscellaneous")]
     [SerializeField] private GameObject _touchTrigger;
     [SerializeField] private ScoreManager _scoreManager;
@@ -23,8 +27,14 @@ public class PlayerController : MonoBehaviour
     {
         _rigidbody = GetComponent<Rigidbody2D>();
         
-        _initialPositionY = transform.position.y;
+        _initialPositionY = _startPosition.y;
         _initialGravityScale = _rigidbody.gravityScale;
+
+        //Calculate start position (target position of ball spawning animation)
+        _startPosition = new Vector2(_startPosition.x + Random.Range(-_horisontalRadius, _horisontalRadius), _startPosition.y);
+        transform.position = new Vector2(_startPosition.x, transform.position.y);
+
+        GameStateManager.Instance.OnGameStateChange += OnGameStateChange;
     }
 
     public void OnTouch(Vector2 pointerPos)
@@ -49,9 +59,35 @@ public class PlayerController : MonoBehaviour
         PlayerEvents.SendBallTouched();
     }
 
+    private void OnGameStateChange(GameState newGameState)
+    {
+        switch (newGameState)
+        {
+            case GameState.Menu:
+                _rigidbody.simulated = false;
+                _rigidbody.velocity = Vector2.zero;
+                _rigidbody.angularVelocity = 0;
+                break;
+            case GameState.Game:
+                _rigidbody.simulated = true;
+                break;
+            case GameState.GameOver:
+                _rigidbody.simulated = false;
+                break;
+        }
+    }
+    
     private void Update()
     {
         //Change gravitational force over height
-        _rigidbody.gravityScale = _initialGravityScale + ((transform.position.y - _initialPositionY) * _gravityMultiplier);
+        if (GameStateManager.Instance.CurrentGameState == GameState.Game && transform.position.y > _startPosition.y)
+            _rigidbody.gravityScale = _initialGravityScale + ((transform.position.y - _initialPositionY) * _gravityMultiplier);
+    }
+
+    private void FixedUpdate()
+    {
+        //Ball spawn animation
+        if (GameStateManager.Instance.CurrentGameState == GameState.Menu)
+            transform.position = Vector3.Lerp(transform.position, _startPosition, 0.15f);
     }
 }

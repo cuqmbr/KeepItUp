@@ -12,7 +12,7 @@ public class PlayerCollisions : MonoBehaviour
                 PlayerEvents.SendWallTouched();
                 break;
             case "Floor":
-                PlayerEvents.SendFloorTouched();
+                GameStateManager.Instance.ChangeState(GameState.GameOver);
                 break;
         }
     }
