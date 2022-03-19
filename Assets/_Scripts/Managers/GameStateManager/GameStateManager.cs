@@ -20,7 +20,7 @@ public class GameStateManager
     //Current game state
     public GameState CurrentGameState { get; private set; }
 
-    //Create a delegate and event to be able to easily react on change of game state from any script
+    //Create an event to be able to easily react on change of game state from any script
     public event Action<GameState> OnGameStateChange;
     
     public void ChangeState(GameState newGameState)
