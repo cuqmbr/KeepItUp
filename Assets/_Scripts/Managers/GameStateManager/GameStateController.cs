@@ -11,7 +11,7 @@ public class GameStateController : MonoBehaviour
 
     private void Awake()
     {
-        //Change game state to selected in inspector state when the game starts
+        // Change game state to selected in inspector state when the game starts
         GameStateManager.Instance.ChangeState(ChangeToState);
 
         PlayerEvents.OnBallTouched += () => GameStateManager.Instance.ChangeState(GameState.Game);
@@ -19,7 +19,7 @@ public class GameStateController : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        //Change game state back to entry state when exiting playing mode
+        // Change game state back to entry state when exiting playing mode
         GameStateManager.Instance.ChangeState(GameState.Enter);
     }
 }
@@ -35,7 +35,7 @@ class GameStateControllerEditor : Editor
         var gameStateController = (GameStateController)target;
         if (gameStateController == null) return;
         
-        //Custom button to change game state from inspector during runtime
+        // Custom button to change game state from inspector during runtime
         if (GUILayout.Button("Change State"))
         {
             if (Application.isPlaying) GameStateManager.Instance.ChangeState(gameStateController.ChangeToState);

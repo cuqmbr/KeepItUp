@@ -30,7 +30,7 @@ public class PlayerController : MonoBehaviour
         _initialPositionY = _startPosition.y;
         _initialGravityScale = _rigidbody.gravityScale;
 
-        //Calculate start position (target position of ball spawning animation)
+        // Calculate start position (target position of ball spawning animation)
         _startPosition = new Vector2(_startPosition.x + Random.Range(-_horisontalRadius, _horisontalRadius), _startPosition.y);
         transform.position = new Vector2(_startPosition.x, transform.position.y);
 
@@ -39,21 +39,21 @@ public class PlayerController : MonoBehaviour
 
     public void OnTouch(Vector2 pointerPos)
     {
-        //Get bounce direction based on the tap position
+        // Get bounce direction based on the tap position
         Vector2 bounceDir = (Vector2)transform.position - pointerPos;
 
-        //Check if pointer is placed on the touchable trigger zone
+        // Check if pointer is placed on the touchable trigger zone
         if (bounceDir.magnitude > 0.5f * _touchTrigger.transform.lossyScale.x) return;
         
-        //Check if the pointer position overlaps the dead zone and set horizontal bounce direction to maximum horizontal bounce direction
+        // Check if the pointer position overlaps the dead zone and set horizontal bounce direction to maximum horizontal bounce direction
         if (Mathf.Abs(bounceDir.x) >= _deadZone * 0.5f * transform.localScale.x) bounceDir.x = (bounceDir.x > 0 ? _deadZone : -_deadZone) * 0.5f * transform.localScale.x;
 
-        //Reset rigid body's velocity
+        // Reset rigid body's velocity
         _rigidbody.velocity = Vector2.zero;
             
-        //Apply impulse force
+        // Apply impulse force
         _rigidbody.AddForce(_punchForce *  new Vector2(bounceDir.x * _sideForceMultiplier,  _upForceMultiplier), ForceMode2D.Impulse);
-        //Add angular velocity for the visual effect
+        // Add angular velocity for the visual effect
         _rigidbody.angularVelocity +=  bounceDir.x * -360f;
         
         PlayerEvents.SendBallTouched();
@@ -79,14 +79,14 @@ public class PlayerController : MonoBehaviour
     
     private void Update()
     {
-        //Change gravitational force over height
+        // Change gravitational force over height
         if (GameStateManager.Instance.CurrentGameState == GameState.Game && transform.position.y > _startPosition.y)
             _rigidbody.gravityScale = _initialGravityScale + ((transform.position.y - _initialPositionY) * _gravityMultiplier);
     }
 
     private void FixedUpdate()
     {
-        //Ball spawn animation
+        // Ball spawn animation
         if (GameStateManager.Instance.CurrentGameState == GameState.Menu)
             transform.position = Vector3.Lerp(transform.position, _startPosition, 0.15f);
     }
