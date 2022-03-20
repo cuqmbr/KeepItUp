@@ -1,9 +1,5 @@
 using UnityEngine;
 
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-
 public class GameStateController : MonoBehaviour
 {
     [Tooltip("Selected state will be applied when the game starts or on the button press")]
@@ -22,24 +18,7 @@ public class GameStateController : MonoBehaviour
         // Change game state back to entry state when exiting playing mode
         GameStateManager.Instance.ChangeState(GameState.Enter);
     }
-}
 
-#if UNITY_EDITOR
-[CustomEditor(typeof(GameStateController))]
-class GameStateControllerEditor : Editor
-{
-    public override void OnInspectorGUI()
-    {
-        DrawDefaultInspector();
-
-        var gameStateController = (GameStateController)target;
-        if (gameStateController == null) return;
-        
-        // Custom button to change game state from inspector during runtime
-        if (GUILayout.Button("Change State"))
-        {
-            if (Application.isPlaying) GameStateManager.Instance.ChangeState(gameStateController.ChangeToState);
-        }
-    }
+    public void ChangeState(string newStateStr) =>
+        GameStateManager.Instance.ChangeState((GameState) System.Enum.Parse(typeof(GameState), newStateStr));
 }
-#endif
