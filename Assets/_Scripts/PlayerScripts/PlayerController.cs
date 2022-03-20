@@ -1,4 +1,6 @@
+using System;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class PlayerController : MonoBehaviour
 {
@@ -30,11 +32,12 @@ public class PlayerController : MonoBehaviour
         _initialPositionY = _startPosition.y;
         _initialGravityScale = _rigidbody.gravityScale;
 
-        // Calculate start position (target position of ball spawning animation)
-        _startPosition = new Vector2(_startPosition.x + Random.Range(-_horisontalRadius, _horisontalRadius), _startPosition.y);
-        transform.position = new Vector2(_startPosition.x, transform.position.y);
-
         GameStateManager.Instance.OnGameStateChange += OnGameStateChange;
+    }
+
+    private void OnDestroy()
+    {
+        GameStateManager.Instance.OnGameStateChange -= OnGameStateChange;
     }
 
     public void OnTouch(Vector2 pointerPos)
@@ -67,6 +70,9 @@ public class PlayerController : MonoBehaviour
                 _rigidbody.simulated = false;
                 _rigidbody.velocity = Vector2.zero;
                 _rigidbody.angularVelocity = 0;
+                
+                // Calculate start position (target position of ball spawning animation)
+                _startPosition = new Vector2(_startPosition.x + Random.Range(-_horisontalRadius, _horisontalRadius), _startPosition.y);
                 break;
             case GameState.Game:
                 _rigidbody.simulated = true;
