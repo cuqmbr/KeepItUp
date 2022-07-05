@@ -7,7 +7,7 @@ public class GameStateController : MonoBehaviour
 
     private void Awake()
     {
-        // Change game state to selected in inspector state when the game starts
+        // Change game state to state selected in inspector when the game starts
         GameStateManager.Instance.ChangeState(ChangeToState);
 
         PlayerEvents.OnBallTouched += () => GameStateManager.Instance.ChangeState(GameState.Game);

@@ -1,6 +1,14 @@
 using System;
 using UnityEngine;
 
+public enum GameState
+{
+    Enter,
+    Menu,
+    Game,
+    GameOver
+}
+
 public class GameStateManager   
 {
     // Make a singleton to be able to easily access game state manager from any script

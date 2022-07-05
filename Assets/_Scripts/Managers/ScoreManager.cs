@@ -9,7 +9,6 @@ public class ScoreManager : MonoBehaviour
     
     [Header("Reward")]
     [SerializeField] private int _initialReward = 1;
-    private int _currentReward = 1;
 
     [Header("Experience")]
     [SerializeField] private int _initialMaxExperience = 3;
@@ -46,18 +45,21 @@ public class ScoreManager : MonoBehaviour
 
     private void AddScore()
     {
-        _currentScore += _currentReward;
+        _currentScore += _initialReward * _currentRewardMultiplier;
         
         uiManager.SetScoreText(_currentScore);
         
         #if UNITY_EDITOR
-            Debug.Log($"XP: {_currentExperience} / {_currentMaxExperience}. SCORE: {_currentScore}. LVL: {_currentRewardMultiplier}. REWARD: {_currentReward}");
+            Debug.Log($"XP: {_currentExperience} / {_currentMaxExperience}. " +
+                      $"SCORE: {_currentScore}. " +
+                      $"LVL: {_currentRewardMultiplier}. " +
+                      $"REWARD: {_initialReward * _currentRewardMultiplier}");
         #endif
     }
 
     private void AddExperience()
     {
-        if (_currentRewardMultiplier <= _maxRewardMultiplier) 
+        if (_currentRewardMultiplier < _maxRewardMultiplier) 
             _currentExperience++;
         
         if (_currentExperience == _currentMaxExperience)
@@ -70,7 +72,6 @@ public class ScoreManager : MonoBehaviour
     {
         _currentRewardMultiplier *= 2;
         _currentMaxExperience = (int)Math.Ceiling(_currentMaxExperience * 1.5f);
-        _currentReward = _initialReward * _currentRewardMultiplier;
         _currentExperience = 0;
         
         uiManager.SetMultiplierText(_currentRewardMultiplier);
@@ -87,15 +88,16 @@ public class ScoreManager : MonoBehaviour
         _currentExperience = 0;
         _currentMaxExperience = _initialMaxExperience;
 
-        _currentReward = _initialReward;
-        
         uiManager.SetMultiplierText(_currentRewardMultiplier);
         uiManager.SetExperienceSliderValue(_currentExperience);
         uiManager.SetExperienceSliderMaxValue(_currentMaxExperience);
         
         #if UNITY_EDITOR
-            Debug.Log($"Multiplier and reward is reseted!");
-            Debug.Log($"XP: {_currentExperience} / {_currentMaxExperience}. SCORE: {_currentScore}. LVL: {_currentRewardMultiplier}. REWARD: {_currentReward}");
+        Debug.Log($"Multiplier is reseted" +
+                  $"XP: {_currentExperience} / {_currentMaxExperience}. " +
+                  $"SCORE: {_currentScore}. " +
+                  $"LVL: {_currentRewardMultiplier}. " +
+                  $"REWARD: {_initialReward * _currentRewardMultiplier}");
         #endif
     }
 
@@ -119,6 +121,7 @@ public class ScoreManager : MonoBehaviour
             case GameState.Enter:
                 break;
             case GameState.Menu:
+                ResetAllValues();
                 break;
             case GameState.Game:
                 break;
