@@ -14,16 +14,7 @@ public class GameStateManager
     // Make a singleton to be able to easily access game state manager from any script
     private static GameStateManager _instance;
     
-    public static GameStateManager Instance
-    {
-        get
-        {
-            if (_instance == null)
-                _instance = new GameStateManager();
-
-            return _instance;
-        }
-    }
+    public static GameStateManager Instance => _instance ??= new GameStateManager();
 
     // Current game state
     public GameState CurrentGameState { get; private set; }

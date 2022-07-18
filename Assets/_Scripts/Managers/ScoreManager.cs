@@ -1,4 +1,5 @@
 using System;
+using DatabaseModels.DataTransferObjets;
 using UnityEngine;
 
 public class ScoreManager : MonoBehaviour
@@ -23,7 +24,7 @@ public class ScoreManager : MonoBehaviour
     [Header("UI")] 
     [SerializeField] private UIManager uiManager;
 
-    private void Awake()
+    private async void Awake()
     {
         // Get _bestAllTimeScore if available or set it to 0
 
@@ -32,6 +33,8 @@ public class ScoreManager : MonoBehaviour
         PlayerEvents.OnWallTouched += ResetMultiplierAndReward;
 
         GameStateManager.Instance.OnGameStateChange += OnGameStateChange;
+
+        var sbRecordDto = await HttpClient.Get<ScoreboardRecordDto>("https://localhost:7248/api/scoreboard/cuqmbr");
     }
 
     private void OnDestroy()
@@ -113,6 +116,8 @@ public class ScoreManager : MonoBehaviour
             Debug.Log("SCORE MANAGER: All values reseted");
         #endif
     }
+
+    private bool IsHighScore => PlayerPrefs.GetInt("HighScore", 0) < _currentScore;
 
     private void OnGameStateChange(GameState newGameState)
     {

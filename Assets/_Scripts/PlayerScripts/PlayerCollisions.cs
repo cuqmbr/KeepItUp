@@ -4,9 +4,9 @@ public class PlayerCollisions : MonoBehaviour
 {
     [SerializeField] private ScoreManager _scoreManager;
     
-    private void OnCollisionEnter2D(Collision2D col)
+    private void OnCollisionEnter2D(Collision2D coll)
     {
-        switch (col.gameObject.tag)
+        switch (coll.gameObject.tag)
         {
             case "Wall":
                 PlayerEvents.SendWallTouched();

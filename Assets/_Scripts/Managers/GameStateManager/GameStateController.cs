@@ -5,7 +5,7 @@ public class GameStateController : MonoBehaviour
     [Tooltip("Selected state will be applied when the game starts or on the button press")]
     public GameState ChangeToState;
 
-    private void Awake()
+    private void Start()
     {
         // Change game state to state selected in inspector when the game starts
         GameStateManager.Instance.ChangeState(ChangeToState);

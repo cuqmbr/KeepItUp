@@ -86,7 +86,7 @@ public class PlayerController : MonoBehaviour
     {
         // Change gravitational force over height
         if (GameStateManager.Instance.CurrentGameState == GameState.Game && transform.position.y > _startPosition.y)
-            _rigidbody.gravityScale = _initialGravityScale + ((transform.position.y - _initialPositionY) * _gravityMultiplier);
+            _rigidbody.gravityScale = _initialGravityScale + (transform.position.y - _initialPositionY) * _gravityMultiplier;
     }
 
     private void FixedUpdate()
