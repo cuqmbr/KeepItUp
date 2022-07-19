@@ -1,5 +1,4 @@
 using System;
-using DatabaseModels.DataTransferObjets;
 using UnityEngine;
 
 public class ScoreManager : MonoBehaviour
@@ -33,8 +32,6 @@ public class ScoreManager : MonoBehaviour
         PlayerEvents.OnWallTouched += ResetMultiplierAndReward;
 
         GameStateManager.Instance.OnGameStateChange += OnGameStateChange;
-
-        var sbRecordDto = await HttpClient.Get<ScoreboardRecordDto>("https://localhost:7248/api/scoreboard/cuqmbr");
     }
 
     private void OnDestroy()

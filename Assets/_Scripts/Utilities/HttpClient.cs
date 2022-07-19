@@ -1,21 +1,29 @@
+using System;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using UnityEngine.Networking;
 
-public static class HttpClient 
+public static class HttpClient
 {
     public static async Task<T> Get<T>(string endpoint)
     {
         var getRequest = CreateRequest(endpoint, RequestType.GET);
         getRequest.SendWebRequest();
 
-        while (getRequest.isDone)
+        while (!getRequest.isDone)
         {
             await Task.Delay(10);
         }
 
-        return JsonConvert.DeserializeObject<T>(getRequest.downloadHandler.text);
+        try
+        {
+            return JsonConvert.DeserializeObject<T>(getRequest.downloadHandler.text);
+        }
+        catch (Exception)
+        {
+            return default(T);
+        }
     }
 
     public static async Task<T> Post<T>(string endpoint, object payload)
@@ -23,7 +31,7 @@ public static class HttpClient
         var postRequest = CreateRequest(endpoint, RequestType.POST, payload);
         postRequest.SendWebRequest();
         
-        while (postRequest.isDone)
+        while (!postRequest.isDone)
         {
             await Task.Delay(10);
         }
@@ -49,10 +57,12 @@ public static class HttpClient
         return request;
     }
 
-    public enum RequestType
+    private enum RequestType
     {
-        GET = 0,
-        POST = 1
+        GET,
+        POST,
+        PUT,
+        DELETE
     }
 }
 
