@@ -6,6 +6,8 @@ using UnityEngine.Networking;
 
 public static class HttpClient
 {
+    private static string _jwt = "";
+    
     public static async Task<T> Get<T>(string endpoint)
     {
         var getRequest = CreateRequest(endpoint, RequestType.GET);
@@ -39,6 +41,11 @@ public static class HttpClient
         return JsonConvert.DeserializeObject<T>(postRequest.downloadHandler.text);
     }
 
+    public static void SetJwt(string jwt)
+    {
+        _jwt = jwt;
+    }
+
     private static UnityWebRequest CreateRequest(string path, RequestType type, object data = null)
     {
         var request = new UnityWebRequest(path, type.ToString());
@@ -51,6 +58,7 @@ public static class HttpClient
 
         request.downloadHandler = new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
+        request.SetRequestHeader("Authorization", $"Bearer {_jwt}");
 
         request.certificateHandler = new CertificateWhore();
 
