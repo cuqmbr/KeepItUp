@@ -17,7 +17,7 @@ class GameStateControllerEditor : Editor
         // Custom button to change game state from inspector during runtime
         if (GUILayout.Button("Change State"))
         {
-            if (Application.isPlaying) GameStateManager.Instance.ChangeState(gameStateController.ChangeToState);
+            if (Application.isPlaying) GameStateManager.Instance.ChangeState(gameStateController.changeToState);
         }
     }
 }

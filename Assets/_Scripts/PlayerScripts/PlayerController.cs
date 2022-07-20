@@ -92,7 +92,7 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         // Ball spawn animation
-        if (GameStateManager.Instance.CurrentGameState == GameState.Menu)
-            transform.position = Vector3.Lerp(transform.position, _startPosition, 0.15f);
+        if (GameStateManager.Instance.CurrentGameState == GameState.PreGame)
+            transform.position = Vector3.Lerp(transform.position, _startPosition, 0.05f);
     }
 }

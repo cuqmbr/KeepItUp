@@ -3,8 +3,9 @@ using UnityEngine;
 
 public enum GameState
 {
-    Enter,
+    Loading,
     Menu,
+    PreGame,
     Game,
     GameOver
 }
