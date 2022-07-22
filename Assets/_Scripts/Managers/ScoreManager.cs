@@ -23,12 +23,13 @@ public class ScoreManager : MonoBehaviour
         PlayerEvents.OnBallTouched += AddScore;
         PlayerEvents.OnBallTouched += AddExperience;
         PlayerEvents.OnWallTouched += ResetExperienceAndRewardMultiplier;
+        PlayerEvents.OnDeath += SaveHighScore;
         GameStateManager.Instance.OnGameStateChange += OnGameStateChange;
     }
 
     private void Start()
     {
-        _highScore = SessionStore.HighScore;
+        LoadHighScore();
     }
 
     private void Update()
@@ -94,6 +95,22 @@ public class ScoreManager : MonoBehaviour
         ResetExperienceAndRewardMultiplier();
     }
 
+    private void SaveHighScore()
+    {
+        if (_currentScore < _highScore)
+        {
+            return;
+        }
+
+        _highScore = _currentScore;
+        SessionStore.HighScore = _highScore;
+    }
+
+    private void LoadHighScore()
+    {
+        _highScore = SessionStore.HighScore;
+    }
+    
     private void OnGameStateChange(GameState newGameState)
     {
         switch (newGameState)
