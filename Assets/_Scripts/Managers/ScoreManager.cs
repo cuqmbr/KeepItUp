@@ -1,11 +1,10 @@
 using System;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class ScoreManager : MonoBehaviour
 {
-    public int CurrentScore { get; protected set; }
+    private int _currentScore;
+    private int _highScore;
 
     [SerializeField] private int _initialRewardMultiplier;
     [SerializeField] private int _maxRewardMultiplier;
@@ -16,14 +15,9 @@ public class ScoreManager : MonoBehaviour
     private int _previousMaxExperience;
     private int _currentExperience;
 
-    [Header("UI")]
-    [SerializeField] private TextMeshProUGUI _currentScoreText;
-    [SerializeField] private TextMeshProUGUI _rewardMultiplierText;
-    [SerializeField] private Slider _experienceSlider;
-    [SerializeField] private float _sliderSmoothTime;
-    [SerializeField] private float _sliderMaxSpeed;
-    private float _sliderVelocity;
-
+    [Header("Dependencies")] 
+    [SerializeField] private UIManager _uiManager;
+    
     private void Awake()
     {
         PlayerEvents.OnBallTouched += AddScore;
@@ -32,27 +26,35 @@ public class ScoreManager : MonoBehaviour
         GameStateManager.Instance.OnGameStateChange += OnGameStateChange;
     }
 
+    private void Start()
+    {
+        _highScore = SessionStore.HighScore;
+    }
+
     private void Update()
     {
-        _experienceSlider.value = Mathf.SmoothDamp(_experienceSlider.value, _currentExperience - _previousMaxExperience, ref _sliderVelocity, _sliderSmoothTime, _sliderMaxSpeed);
+        if (GameStateManager.Instance.CurrentGameState != GameState.Game)
+        {
+            return;
+        }
+        
+        _uiManager.UpdateExperienceSlider(_currentExperience - _previousMaxExperience, out bool isFullExperienceSlider);
 
         if (_currentRewardMultiplier >= _maxRewardMultiplier)
         {
             return;
         }
-        
-        if (Math.Abs(_experienceSlider.value - _experienceSlider.maxValue) < 0.1f)
+
+        if (isFullExperienceSlider)
         {
             LevelUp();
-            _experienceSlider.maxValue = _currentMaxExperience;
-            _experienceSlider.value = 0;
         }
     }
 
     private void AddScore()
     {
-        CurrentScore += _currentRewardMultiplier;
-        _currentScoreText.text = CurrentScore.ToString();
+        _currentScore += _currentRewardMultiplier;
+        _uiManager.SetScoreText(_currentScore);
     }
 
     private void AddExperience()
@@ -65,7 +67,10 @@ public class ScoreManager : MonoBehaviour
         _previousMaxExperience = _currentExperience;
         _currentMaxExperience = (int) Math.Ceiling(_currentMaxExperience * 1.75f);
         _currentRewardMultiplier *= 2;
-        _rewardMultiplierText.text = $"×{_currentRewardMultiplier}";
+        
+        _uiManager.SetRewardMultiplierText(_currentRewardMultiplier);
+        _uiManager.SetExperienceSliderValue(0);
+        _uiManager.SetExperienceSliderMaxValue(_currentMaxExperience);
     }
 
     private void ResetExperienceAndRewardMultiplier()
@@ -76,14 +81,15 @@ public class ScoreManager : MonoBehaviour
         _currentMaxExperience = _initialMaxExperience;
         _previousMaxExperience = 0;
 
-        _rewardMultiplierText.text = "×1";
-        _experienceSlider.maxValue = _currentMaxExperience;
+        _uiManager.SetRewardMultiplierText(1);
+        _uiManager.SetExperienceSliderValue(0);
+        _uiManager.SetExperienceSliderMaxValue(_currentMaxExperience);
     }
     
     private void ResetAllValues()
     {
-        CurrentScore = 0;
-        _currentScoreText.text = "0";
+        _currentScore = 0;
+        _uiManager.SetScoreText(0);
         
         ResetExperienceAndRewardMultiplier();
     }
