@@ -1,12 +1,11 @@
 using System.Linq;
 using DatabaseModels.DataTransferObjets;
-using JetBrains.Annotations;
 
 public static class SessionStore
 {
    public static string ApiUrl { get; set; }
    
-   public static UserData UserData { get; private set; }
+   public static UserData UserData { get; set; }
    public static int HighScore { get; set; }
    
    public static ScoreboardRecordDto[] ScoreboardRecords;
@@ -23,6 +22,11 @@ public static class SessionStore
       HighScore = await SaveSystem.LoadFromBinaryAsync<int>("HighScore.bin");
 
       ScoreboardRecords = await HttpClient.Get<ScoreboardRecordDto[]>($"{ApiUrl}/scoreboard");
+
+      if (UserData == null)
+      {
+         return;
+      }
       
       int? dbHighScore = ScoreboardRecords?.FirstOrDefault(sbr => sbr.User.Username == UserData.Username)?.Score;
       if (dbHighScore != null && dbHighScore > HighScore)

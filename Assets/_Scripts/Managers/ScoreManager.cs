@@ -17,13 +17,13 @@ public class ScoreManager : MonoBehaviour
 
     [Header("Dependencies")] 
     [SerializeField] private UIManager _uiManager;
+    [SerializeField] private ScoreboardManager _scoreboardManager;
     
     private void Awake()
     {
         PlayerEvents.OnBallTouched += AddScore;
         PlayerEvents.OnBallTouched += AddExperience;
         PlayerEvents.OnWallTouched += ResetExperienceAndRewardMultiplier;
-        PlayerEvents.OnDeath += SaveHighScore;
         GameStateManager.Instance.OnGameStateChange += OnGameStateChange;
     }
 
@@ -121,10 +121,12 @@ public class ScoreManager : MonoBehaviour
                 break;
             case GameState.PreGame:
                 ResetAllValues();
+                _scoreboardManager.SpawnScoreboardRecords();
                 break;
             case GameState.Game:
                 break;
             case GameState.GameOver:
+                SaveHighScore();
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(newGameState), newGameState, null);
