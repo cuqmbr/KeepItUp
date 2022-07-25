@@ -1,33 +1,29 @@
-using System.Collections.Generic;
+using System;
 using System.Linq;
 using DatabaseModels.DataTransferObjets;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ScoreboardManager : MonoBehaviour
 {
-    [SerializeField] private GameObject _scoreboardRecordPrefab;
-
-    [SerializeField] private Color _color1;
-    [SerializeField] private Color _color2;
-
-    [SerializeField] private GameObject _scrollViewContent;
+    [SerializeField] private UIManager _uiManager;
 
     public void SpawnScoreboardRecords()
     {
+        if (SessionStore.UserData == null)
+        {
+            // Login to display online scoreboard
+            
+            return;
+        }
+        
+        // TODO: POST new HighScore to the database
+        
         var filteredScoreboardRecords = GetFilteredScoreboardRecords();
         
-        var rectTransform = _scrollViewContent.GetComponent<RectTransform>();
-        rectTransform.sizeDelta = new Vector2(0, filteredScoreboardRecords.Length * 100);
-
-        for (int i = 0; i < _scrollViewContent.transform.childCount; i++)
-        {
-            Destroy(_scrollViewContent.transform.GetChild(i));
-        }
-        
-        for (int i = 0; i < filteredScoreboardRecords.Length; i++)
-        {
-            Instantiate(_scoreboardRecordPrefab, new Vector2(225, -50 - 100 * i), Quaternion.identity, _scrollViewContent.transform);
-        }
+        _uiManager.DestroyAllScoreboardRecords();
+        _uiManager.InstantiateScoreboardRecords(filteredScoreboardRecords);
         
         ScoreboardRecordDto[] GetFilteredScoreboardRecords()
         {
@@ -39,8 +35,8 @@ public class ScoreboardManager : MonoBehaviour
             var currentUserRecord = localRecords.FirstOrDefault(r => r.User.Username == SessionStore.UserData.Username);
             var currentUserPlace = localRecords.IndexOf(currentUserRecord) != -1 ? localRecords.IndexOf(currentUserRecord) + 1 : -1;
 
-            var startIndex = localRecords.Count - topUserPlace < localRecords.Count - 5 ? topUserPlace - 5 : 0;
-            int count = localRecords.Count - currentUserPlace < localRecords.Count && localRecords.Count - currentUserPlace > 3 ? currentUserPlace + 3 - startIndex : currentUserPlace - startIndex;
+            var startIndex = localRecords.Count - topUserPlace < localRecords.Count - 6 ? topUserPlace - 6 : 0;
+            int count = localRecords.Count - currentUserPlace < localRecords.Count && localRecords.Count - currentUserPlace > 6 ? currentUserPlace + 6 - startIndex : currentUserPlace - startIndex;
 
             if (currentUserPlace == -1)
             {

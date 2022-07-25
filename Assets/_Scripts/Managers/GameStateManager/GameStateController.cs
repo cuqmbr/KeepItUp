@@ -3,7 +3,8 @@ using UnityEngine.Serialization;
 
 public class GameStateController : MonoBehaviour
 {
-    [FormerlySerializedAs("ChangeToState")] [Tooltip("Selected state will be applied when the game starts or on the button press")]
+    [FormerlySerializedAs("ChangeToState")]
+    [Tooltip("Selected state will be applied when the game starts or on the button press")]
     public GameState changeToState;
 
     private void Start() 

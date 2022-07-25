@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using DatabaseModels.DataTransferObjets;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,6 +18,13 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Slider _experienceSlider;
     [SerializeField] private float _sliderSmoothTime;
     private float _sliderVelocity;
+    
+    [Header("Scoreboard")]
+    [SerializeField] private GameObject _scoreboardScrollViewContent;
+    [SerializeField] private GameObject _scoreboardRecordPrefab;
+    [SerializeField] private Color _scoreboardRecordColor1;
+    [SerializeField] private Color _scoreboardRecordColor2;
+
 
     private void Awake()
     {
@@ -53,6 +61,28 @@ public class UIManager : MonoBehaviour
         _experienceSlider.value = Mathf.SmoothDamp(_experienceSlider.value, targetValue, ref _sliderVelocity, _sliderSmoothTime);
 
         isFull = Math.Abs(_experienceSlider.value - _experienceSlider.maxValue) < 0.1f;
+    }
+
+    public void InstantiateScoreboardRecords(ScoreboardRecordDto[] records)
+    {
+        var rectTransform = _scoreboardScrollViewContent.GetComponent<RectTransform>();
+        rectTransform.sizeDelta = new Vector2(0, records.Length * 100);
+
+        for (int i = 0; i < records.Length; i++)
+        {
+            var record = Instantiate(_scoreboardRecordPrefab, Vector3.zero, Quaternion.identity, _scoreboardScrollViewContent.transform);
+            record.GetComponent<RectTransform>().localPosition = new Vector2(218, -50 - 100 * i);
+            record.GetComponent<Image>().color = i % 2 == 0 ? _scoreboardRecordColor1 : _scoreboardRecordColor2;
+            record.GetComponentInChildren<TextMeshProUGUI>().text = $"{i + 1}. {records[i].User.Username}: {records[i].Score}";
+        }
+    }
+
+    public void DestroyAllScoreboardRecords()
+    {
+        for (int i = 0; i < _scoreboardScrollViewContent.transform.childCount; i++)
+        {
+            Destroy(_scoreboardScrollViewContent.transform.GetChild(i).gameObject);
+        }
     }
     
     private async void OnGameStateChange(GameState newGameState)

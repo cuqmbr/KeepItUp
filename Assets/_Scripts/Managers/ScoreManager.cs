@@ -121,12 +121,12 @@ public class ScoreManager : MonoBehaviour
                 break;
             case GameState.PreGame:
                 ResetAllValues();
-                _scoreboardManager.SpawnScoreboardRecords();
                 break;
             case GameState.Game:
                 break;
             case GameState.GameOver:
                 SaveHighScore();
+                _scoreboardManager.SpawnScoreboardRecords();
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(newGameState), newGameState, null);
