@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using DatabaseModels.DataTransferObjets;
 using TMPro;
 using UnityEngine;
@@ -9,7 +11,7 @@ public class ScoreboardManager : MonoBehaviour
 {
     [SerializeField] private UIManager _uiManager;
 
-    public void SpawnScoreboardRecords()
+    public async void SpawnScoreboardRecords()
     {
         if (SessionStore.UserData == null)
         {
@@ -18,32 +20,22 @@ public class ScoreboardManager : MonoBehaviour
             return;
         }
         
-        // TODO: POST new HighScore to the database
-        
-        var filteredScoreboardRecords = GetFilteredScoreboardRecords();
+        var filteredScoreboardRecords = await GetFilteredScoreboardRecords();
         
         _uiManager.DestroyAllScoreboardRecords();
         _uiManager.InstantiateScoreboardRecords(filteredScoreboardRecords);
         
-        ScoreboardRecordDto[] GetFilteredScoreboardRecords()
+        async Task<ScoreboardRecordDto[]> GetFilteredScoreboardRecords()
         {
-            var localRecords = SessionStore.ScoreboardRecords.ToList();
+            var localRecords = await HttpClient.Get<List<ScoreboardRecordDto>>($"{SessionStore.ApiUrl}/scoreboard");
+            var currentUserRecord = localRecords.First(r => r.User.Username == SessionStore.UserData.Username);
 
-            var topUserRecord = localRecords.LastOrDefault(r => r.Score >= SessionStore.HighScore);
-            var topUserPlace = localRecords.IndexOf(topUserRecord) + 1;
+            var filteredRecords = localRecords
+                .SkipWhile(r => Math.Abs(localRecords.IndexOf(r) - localRecords.IndexOf(currentUserRecord)) >= 5)
+                .TakeWhile(r => Math.Abs(localRecords.IndexOf(r) - localRecords.IndexOf(currentUserRecord)) <= 5)
+                .ToArray();
 
-            var currentUserRecord = localRecords.FirstOrDefault(r => r.User.Username == SessionStore.UserData.Username);
-            var currentUserPlace = localRecords.IndexOf(currentUserRecord) != -1 ? localRecords.IndexOf(currentUserRecord) + 1 : -1;
-
-            var startIndex = localRecords.Count - topUserPlace < localRecords.Count - 6 ? topUserPlace - 6 : 0;
-            int count = localRecords.Count - currentUserPlace < localRecords.Count && localRecords.Count - currentUserPlace > 6 ? currentUserPlace + 6 - startIndex : currentUserPlace - startIndex;
-
-            if (currentUserPlace == -1)
-            {
-                count = localRecords.Count - startIndex;
-            }
-
-            return localRecords.GetRange(startIndex, count).ToArray();
+            return filteredRecords.ToArray();
         }
     }
 }

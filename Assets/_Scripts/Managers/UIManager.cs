@@ -20,7 +20,7 @@ public class UIManager : MonoBehaviour
     private float _sliderVelocity;
     
     [Header("Scoreboard")]
-    [SerializeField] private GameObject _scoreboardScrollViewContent;
+    [SerializeField] private RectTransform _scoreboardScrollViewContent;
     [SerializeField] private GameObject _scoreboardRecordPrefab;
     [SerializeField] private Color _scoreboardRecordColor1;
     [SerializeField] private Color _scoreboardRecordColor2;
@@ -65,8 +65,8 @@ public class UIManager : MonoBehaviour
 
     public void InstantiateScoreboardRecords(ScoreboardRecordDto[] records)
     {
-        var rectTransform = _scoreboardScrollViewContent.GetComponent<RectTransform>();
-        rectTransform.sizeDelta = new Vector2(0, records.Length * 100);
+        _scoreboardScrollViewContent.sizeDelta = new Vector2(0, records.Length * 100);
+        _scoreboardScrollViewContent.localPosition = new Vector3(0, _scoreboardScrollViewContent.sizeDelta.y / records.Length * 2f);
 
         for (int i = 0; i < records.Length; i++)
         {

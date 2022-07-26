@@ -38,6 +38,11 @@ public static class HttpClient
             await Task.Delay(10);
         }
 
+        while (!postRequest.downloadHandler.isDone)
+        {
+            await Task.Delay(10);
+        }
+        
         return JsonConvert.DeserializeObject<T>(postRequest.downloadHandler.text);
     }
 
@@ -58,7 +63,11 @@ public static class HttpClient
 
         request.downloadHandler = new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
-        request.SetRequestHeader("Authorization", $"Bearer {_jwt}");
+
+        if (_jwt != null)
+        {
+            request.SetRequestHeader("Authorization", $"Bearer {_jwt}");
+        }
 
         request.certificateHandler = new CertificateWhore();
 

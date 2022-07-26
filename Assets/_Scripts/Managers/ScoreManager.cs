@@ -1,4 +1,6 @@
 using System;
+using System.Threading.Tasks;
+using DatabaseModels.DataTransferObjets;
 using UnityEngine;
 
 public class ScoreManager : MonoBehaviour
@@ -24,7 +26,7 @@ public class ScoreManager : MonoBehaviour
         PlayerEvents.OnBallTouched += AddScore;
         PlayerEvents.OnBallTouched += AddExperience;
         PlayerEvents.OnWallTouched += ResetExperienceAndRewardMultiplier;
-        GameStateManager.Instance.OnGameStateChange += OnGameStateChange;
+        GameStateManager.Instance.OnGameStateChange += async (s) => await OnGameStateChange(s);
     }
 
     private void Start()
@@ -82,7 +84,7 @@ public class ScoreManager : MonoBehaviour
         _currentMaxExperience = _initialMaxExperience;
         _previousMaxExperience = 0;
 
-        _uiManager.SetRewardMultiplierText(1);
+        _uiManager.SetRewardMultiplierText(_currentRewardMultiplier);
         _uiManager.SetExperienceSliderValue(0);
         _uiManager.SetExperienceSliderMaxValue(_currentMaxExperience);
     }
@@ -90,20 +92,28 @@ public class ScoreManager : MonoBehaviour
     private void ResetAllValues()
     {
         _currentScore = 0;
-        _uiManager.SetScoreText(0);
+        _uiManager.SetScoreText(_currentScore);
         
         ResetExperienceAndRewardMultiplier();
     }
 
-    private void SaveHighScore()
+    private async Task SaveHighScore()
     {
-        if (_currentScore < _highScore)
+        if (_currentScore <= _highScore)
         {
             return;
         }
 
         _highScore = _currentScore;
         SessionStore.HighScore = _highScore;
+        
+        await HttpClient.Post<ScoreboardRecordDto>(
+            $"{SessionStore.ApiUrl}/scoreboard",
+            new ScoreboardRecordDto
+            {
+                PostTime = DateTime.UtcNow, Score = SessionStore.HighScore,
+                User = SessionStore.UserData.ToDto()
+            });
     }
 
     private void LoadHighScore()
@@ -111,7 +121,7 @@ public class ScoreManager : MonoBehaviour
         _highScore = SessionStore.HighScore;
     }
     
-    private void OnGameStateChange(GameState newGameState)
+    private async Task OnGameStateChange(GameState newGameState)
     {
         switch (newGameState)
         {
@@ -125,7 +135,7 @@ public class ScoreManager : MonoBehaviour
             case GameState.Game:
                 break;
             case GameState.GameOver:
-                SaveHighScore();
+                await SaveHighScore();
                 _scoreboardManager.SpawnScoreboardRecords();
                 break;
             default:
