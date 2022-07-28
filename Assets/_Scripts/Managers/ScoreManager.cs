@@ -106,12 +106,17 @@ public class ScoreManager : MonoBehaviour
 
         _highScore = _currentScore;
         SessionStore.HighScore = _highScore;
+
+        if (SessionStore.UserData == null)
+        {
+            return;
+        }
         
         await HttpClient.Post<ScoreboardRecordDto>(
             $"{SessionStore.ApiUrl}/scoreboard",
             new ScoreboardRecordDto
             {
-                PostTime = DateTime.UtcNow, Score = SessionStore.HighScore,
+                PostTime = DateTime.UtcNow, Score = _highScore,
                 User = SessionStore.UserData.ToDto()
             });
     }
@@ -136,7 +141,7 @@ public class ScoreManager : MonoBehaviour
                 break;
             case GameState.GameOver:
                 await SaveHighScore();
-                _scoreboardManager.SpawnScoreboardRecords();
+                await _scoreboardManager.SpawnScoreboardRecords();
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(newGameState), newGameState, null);

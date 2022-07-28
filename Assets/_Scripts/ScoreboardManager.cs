@@ -3,39 +3,41 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DatabaseModels.DataTransferObjets;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class ScoreboardManager : MonoBehaviour
 {
     [SerializeField] private UIManager _uiManager;
 
-    public async void SpawnScoreboardRecords()
+    public async Task SpawnScoreboardRecords()
     {
         if (SessionStore.UserData == null)
         {
-            // Login to display online scoreboard
-            
+            _uiManager._scoreboardLoginTip.SetActive(true);
             return;
         }
         
-        var filteredScoreboardRecords = await GetFilteredScoreboardRecords();
-        
+        _uiManager._scoreboardLoadingScreen.SetActive(true);
         _uiManager.DestroyAllScoreboardRecords();
-        _uiManager.InstantiateScoreboardRecords(filteredScoreboardRecords);
+        var filteredScoreboard = await GetFilteredScoreboard();
+        _uiManager.InstantiateScoreboardRecords(filteredScoreboard.records, filteredScoreboard.firstRecordIndex);
+        _uiManager._scoreboardLoadingScreen.SetActive(false);
         
-        async Task<ScoreboardRecordDto[]> GetFilteredScoreboardRecords()
+        async Task<(ScoreboardRecordDto[] records, int firstRecordIndex)> GetFilteredScoreboard()
         {
+            int spareCount = 5;
+            
             var localRecords = await HttpClient.Get<List<ScoreboardRecordDto>>($"{SessionStore.ApiUrl}/scoreboard");
             var currentUserRecord = localRecords.First(r => r.User.Username == SessionStore.UserData.Username);
 
+            var firstRecordNum = Mathf.Clamp(localRecords.IndexOf(currentUserRecord) - spareCount, 0, localRecords.Count);
+            
             var filteredRecords = localRecords
-                .SkipWhile(r => Math.Abs(localRecords.IndexOf(r) - localRecords.IndexOf(currentUserRecord)) >= 5)
-                .TakeWhile(r => Math.Abs(localRecords.IndexOf(r) - localRecords.IndexOf(currentUserRecord)) <= 5)
+                .SkipWhile(r => Math.Abs(localRecords.IndexOf(r) - localRecords.IndexOf(currentUserRecord)) >= spareCount)
+                .TakeWhile(r => Math.Abs(localRecords.IndexOf(r) - localRecords.IndexOf(currentUserRecord)) <= spareCount)
                 .ToArray();
 
-            return filteredRecords.ToArray();
+            return (filteredRecords, firstRecordNum);
         }
     }
 }

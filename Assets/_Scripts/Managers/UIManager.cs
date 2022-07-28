@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using DatabaseModels.DataTransferObjets;
 using TMPro;
@@ -21,9 +22,12 @@ public class UIManager : MonoBehaviour
     
     [Header("Scoreboard")]
     [SerializeField] private RectTransform _scoreboardScrollViewContent;
+    [SerializeField] public GameObject _scoreboardLoadingScreen;
+    [SerializeField] public GameObject _scoreboardLoginTip;
     [SerializeField] private GameObject _scoreboardRecordPrefab;
     [SerializeField] private Color _scoreboardRecordColor1;
     [SerializeField] private Color _scoreboardRecordColor2;
+    [SerializeField] private Color _scoreboardPlayerRecordColor;
 
 
     private void Awake()
@@ -63,17 +67,38 @@ public class UIManager : MonoBehaviour
         isFull = Math.Abs(_experienceSlider.value - _experienceSlider.maxValue) < 0.1f;
     }
 
-    public void InstantiateScoreboardRecords(ScoreboardRecordDto[] records)
+    public void InstantiateScoreboardRecords(ScoreboardRecordDto[] records, int firstRecordIndex)
     {
         _scoreboardScrollViewContent.sizeDelta = new Vector2(0, records.Length * 100);
-        _scoreboardScrollViewContent.localPosition = new Vector3(0, _scoreboardScrollViewContent.sizeDelta.y / records.Length * 2f);
+
+        float yPos = 0;
+
+        if (records.Last().User.Username == SessionStore.UserData.Username)
+        {
+            yPos = _scoreboardScrollViewContent.sizeDelta.y / records.Length / 100;
+        }
+        else
+        {
+            yPos = _scoreboardScrollViewContent.sizeDelta.y / records.Length * 2f;
+        }
+        
+        _scoreboardScrollViewContent.localPosition = new Vector3(0, yPos);
 
         for (int i = 0; i < records.Length; i++)
         {
             var record = Instantiate(_scoreboardRecordPrefab, Vector3.zero, Quaternion.identity, _scoreboardScrollViewContent.transform);
             record.GetComponent<RectTransform>().localPosition = new Vector2(218, -50 - 100 * i);
-            record.GetComponent<Image>().color = i % 2 == 0 ? _scoreboardRecordColor1 : _scoreboardRecordColor2;
-            record.GetComponentInChildren<TextMeshProUGUI>().text = $"{i + 1}. {records[i].User.Username}: {records[i].Score}";
+
+            if (records[i].User.Username == SessionStore.UserData.Username)
+            {
+                record.GetComponent<Image>().color = _scoreboardPlayerRecordColor;
+            }
+            else
+            {
+                record.GetComponent<Image>().color = i % 2 == 0 ? _scoreboardRecordColor1 : _scoreboardRecordColor2;
+            }
+            
+            record.GetComponentInChildren<TextMeshProUGUI>().text = $"{firstRecordIndex + i + 1}. {records[i].User.Username}: {records[i].Score}";
         }
     }
 
@@ -81,7 +106,7 @@ public class UIManager : MonoBehaviour
     {
         for (int i = 0; i < _scoreboardScrollViewContent.transform.childCount; i++)
         {
-            Destroy(_scoreboardScrollViewContent.transform.GetChild(i).gameObject);
+            DestroyImmediate(_scoreboardScrollViewContent.transform.GetChild(i).gameObject);
         }
     }
     

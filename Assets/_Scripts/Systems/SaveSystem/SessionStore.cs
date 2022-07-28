@@ -1,14 +1,15 @@
-using System.Linq;
 using DatabaseModels.DataTransferObjets;
+using DatabaseModels.Requests;
+using DatabaseModels.Responses;
 
 public static class SessionStore
 {
    public static string ApiUrl { get; set; }
    
+   public static string Jwt { get; set; }
+
    public static UserData UserData { get; set; }
    public static int HighScore { get; set; }
-   
-   public static ScoreboardRecordDto[] ScoreboardRecords;
 
    public static async void Save()
    {
@@ -21,17 +22,18 @@ public static class SessionStore
       UserData = await SaveSystem.LoadFromJsonAsync<UserData>("userData.json");
       HighScore = await SaveSystem.LoadFromBinaryAsync<int>("HighScore.bin");
 
-      ScoreboardRecords = await HttpClient.Get<ScoreboardRecordDto[]>($"{ApiUrl}/scoreboard");
-
       if (UserData == null)
       {
          return;
       }
-      
-      int? dbHighScore = ScoreboardRecords?.FirstOrDefault(sbr => sbr.User.Username == UserData.Username)?.Score;
-      if (dbHighScore != null && dbHighScore > HighScore)
+
+      var authResponse = await HttpClient.Post<AuthenticationResponse>($"{ApiUrl}/auth/login", new AuthenticationRequest { Username = UserData.Username, Password = UserData.Password } );
+      Jwt = authResponse.Token;
+
+      var dbHighScore = await HttpClient.Get<ScoreboardRecordDto>($"{ApiUrl}/scoreboard/{UserData.Username}");
+      if (dbHighScore?.Score != null && dbHighScore.Score > HighScore)
       {
-         HighScore = (int) dbHighScore;
+         HighScore = dbHighScore.Score;
       }
    }
 }

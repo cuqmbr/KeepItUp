@@ -2,12 +2,11 @@ using System;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using UnityEngine;
 using UnityEngine.Networking;
 
 public static class HttpClient
 {
-    private static string _jwt = "";
-    
     public static async Task<T> Get<T>(string endpoint)
     {
         var getRequest = CreateRequest(endpoint, RequestType.GET);
@@ -22,8 +21,15 @@ public static class HttpClient
         {
             return JsonConvert.DeserializeObject<T>(getRequest.downloadHandler.text);
         }
-        catch (Exception)
+        catch (Exception e)
         {
+            Debug.LogWarning($"HttpClient: GET from {endpoint}" +
+                           $"\nSent object type: {typeof(T)}" +
+                           $"\nError: {getRequest.error}" +
+                           $"\n\n" +
+                           $"See details in a exception logged below." +
+                           $"\n\n");
+            Debug.LogException(e);
             return default(T);
         }
     }
@@ -42,13 +48,23 @@ public static class HttpClient
         {
             await Task.Delay(10);
         }
-        
-        return JsonConvert.DeserializeObject<T>(postRequest.downloadHandler.text);
-    }
 
-    public static void SetJwt(string jwt)
-    {
-        _jwt = jwt;
+        try
+        {
+            return JsonConvert.DeserializeObject<T>(postRequest.downloadHandler.text);
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"HttpClient: POST to {endpoint}" +
+                             $"\nSent object type: {payload.GetType()}" +
+                             $"\nRetrieved object type: {typeof(T)}" +
+                             $"\nError: {postRequest.error}" +
+                             $"\n\n" +
+                             $"See details in a exception logged below." +
+                             $"\n\n");
+            Debug.LogException(e);
+            return default(T);
+        }
     }
 
     private static UnityWebRequest CreateRequest(string path, RequestType type, object data = null)
@@ -64,9 +80,9 @@ public static class HttpClient
         request.downloadHandler = new DownloadHandlerBuffer();
         request.SetRequestHeader("Content-Type", "application/json");
 
-        if (_jwt != null)
+        if (SessionStore.Jwt != null)
         {
-            request.SetRequestHeader("Authorization", $"Bearer {_jwt}");
+            request.SetRequestHeader("Authorization", $"Bearer {SessionStore.Jwt}");
         }
 
         request.certificateHandler = new CertificateWhore();
