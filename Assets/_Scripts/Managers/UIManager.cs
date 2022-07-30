@@ -19,6 +19,15 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Slider _experienceSlider;
     [SerializeField] private float _sliderSmoothTime;
     private float _sliderVelocity;
+
+    [Header("Game Over Menu")]
+    [SerializeField] private TextMeshProUGUI _gameOverScoreText;
+
+    [Header("Authentication Menu")] 
+    [SerializeField] public GameObject _authenticationMenu;
+    [SerializeField] private TMP_InputField _usernameInputField;
+    [SerializeField] private TMP_InputField _passwordInputField;
+    [SerializeField] private TextMeshProUGUI _authenticationErrorText;
     
     [Header("Scoreboard")]
     [SerializeField] private RectTransform _scoreboardScrollViewContent;
@@ -67,7 +76,7 @@ public class UIManager : MonoBehaviour
         isFull = Math.Abs(_experienceSlider.value - _experienceSlider.maxValue) < 0.1f;
     }
 
-    public void InstantiateScoreboardRecords(ScoreboardRecordDto[] records, int firstRecordIndex)
+    public Task InstantiateScoreboardRecords(ScoreboardRecordDto[] records, int firstRecordIndex)
     {
         _scoreboardScrollViewContent.sizeDelta = new Vector2(0, records.Length * 100);
 
@@ -76,6 +85,10 @@ public class UIManager : MonoBehaviour
         if (records.Last().User.Username == SessionStore.UserData.Username)
         {
             yPos = _scoreboardScrollViewContent.sizeDelta.y / records.Length / 100;
+        }
+        else if (records.First().User.Username == SessionStore.UserData.Username)
+        {
+            yPos = 0;
         }
         else
         {
@@ -100,14 +113,33 @@ public class UIManager : MonoBehaviour
             
             record.GetComponentInChildren<TextMeshProUGUI>().text = $"{firstRecordIndex + i + 1}. {records[i].User.Username}: {records[i].Score}";
         }
+
+        return Task.CompletedTask;
     }
 
-    public void DestroyAllScoreboardRecords()
+    public Task DestroyAllScoreboardRecords()
     {
         for (int i = 0; i < _scoreboardScrollViewContent.transform.childCount; i++)
         {
-            DestroyImmediate(_scoreboardScrollViewContent.transform.GetChild(i).gameObject);
+            Destroy(_scoreboardScrollViewContent.transform.GetChild(i).gameObject);
         }
+        
+        return Task.CompletedTask;
+    }
+
+    public void SetGameOverScore(int value)
+    {
+        _gameOverScoreText.text = value.ToString();
+    }
+
+    public (string username, string password) GetAuthenticationCredentials()
+    {
+        return (_usernameInputField.text, _passwordInputField.text);
+    }
+
+    public void SetAuthenticationErrorMessage(string message)
+    {
+        _authenticationErrorText.text = message;
     }
     
     private async void OnGameStateChange(GameState newGameState)

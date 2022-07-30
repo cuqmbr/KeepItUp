@@ -99,11 +99,6 @@ public class ScoreManager : MonoBehaviour
 
     private async Task SaveHighScore()
     {
-        if (_currentScore <= _highScore)
-        {
-            return;
-        }
-
         _highScore = _currentScore;
         SessionStore.HighScore = _highScore;
 
@@ -140,7 +135,8 @@ public class ScoreManager : MonoBehaviour
             case GameState.Game:
                 break;
             case GameState.GameOver:
-                await SaveHighScore();
+                _uiManager.SetGameOverScore(_currentScore);
+                if (_currentScore > _highScore) await SaveHighScore();
                 await _scoreboardManager.SpawnScoreboardRecords();
                 break;
             default:

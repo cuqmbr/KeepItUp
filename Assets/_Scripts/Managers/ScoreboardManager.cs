@@ -18,9 +18,9 @@ public class ScoreboardManager : MonoBehaviour
         }
         
         _uiManager._scoreboardLoadingScreen.SetActive(true);
-        _uiManager.DestroyAllScoreboardRecords();
+        await _uiManager.DestroyAllScoreboardRecords();
         var filteredScoreboard = await GetFilteredScoreboard();
-        _uiManager.InstantiateScoreboardRecords(filteredScoreboard.records, filteredScoreboard.firstRecordIndex);
+        await _uiManager.InstantiateScoreboardRecords(filteredScoreboard.records, filteredScoreboard.firstRecordIndex);
         _uiManager._scoreboardLoadingScreen.SetActive(false);
         
         async Task<(ScoreboardRecordDto[] records, int firstRecordIndex)> GetFilteredScoreboard()

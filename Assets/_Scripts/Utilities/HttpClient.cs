@@ -44,7 +44,7 @@ public static class HttpClient
             await Task.Delay(10);
         }
 
-        while (!postRequest.downloadHandler.isDone)
+        while (!postRequest.downloadHandler.isDone && postRequest.result != UnityWebRequest.Result.ProtocolError && postRequest.result != UnityWebRequest.Result.ConnectionError)
         {
             await Task.Delay(10);
         }
