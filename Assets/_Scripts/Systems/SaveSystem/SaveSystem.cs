@@ -105,6 +105,28 @@ public static class SaveSystem
         var json = await inputFile.ReadToEndAsync();
         return JsonConvert.DeserializeObject<T>(json);
     }
+
+    public static void Delete(string fileName)
+    {
+        if (!File.Exists($"{Path}/{fileName}"))
+        {
+            return;
+        }
+        
+        File.Delete($"{Path}/{fileName}");
+    }
+    
+    public static Task DeleteAsync(string fileName)
+    {
+        if (!File.Exists($"{Path}/{fileName}"))
+        {
+            return Task.CompletedTask;
+        }
+        
+        File.Delete($"{Path}/{fileName}");
+        
+        return Task.CompletedTask;
+    }
     
     private static byte[] ObjectToByteArray(System.Object obj)
     {
